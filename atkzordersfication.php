@@ -188,19 +188,19 @@ class AtkzOrdersFication extends Module
         $order = new Order((int) $params['id_order']);
         $current_state = $order->current_state;
 
-        /*  Voir si test de comparaison avec le status current (precommande) */
+        /* Voir si test de comparaison avec le status current (precommande) */
         $new_state = $params['newOrderStatus']->id;
         $notif_state = (int) Configuration::get('ATKZORDERSFICATION_ORDER_STATE');
 
-        if ($new_state === $notif_state){
-
-             /*  Voir si test multi produits */
+        if ($new_state === $notif_state)
+        {
+            /* Voir si test multi produits */
             $notif_product = (int) Configuration::get('ATKZORDERSFICATION_PRODUCTS');
             $checkProduct = $order->orderContainProduct($notif_product);
 
-            if ($checkProduct){
-                
-                /*  Voir si test multi emails */
+            if ($checkProduct)
+            {
+                /* Voir si test multi emails */
                 $notif_email = Configuration::get('ATKZORDERSFICATION_EMAILS');
 
                 if ($notif_email){
