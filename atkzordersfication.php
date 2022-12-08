@@ -30,7 +30,6 @@ if (!defined('_PS_VERSION_')) {
 
 class AtkzOrdersFication extends Module
 {
-
     public function __construct()
     {
         $this->name = 'atkzordersfication';
@@ -46,7 +45,6 @@ class AtkzOrdersFication extends Module
         $this->description = $this->l('Sending an email to customers when purchasing a product');
 
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall my module?');
-
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
     }
 
@@ -79,7 +77,7 @@ class AtkzOrdersFication extends Module
     public function getContent()
     {
         $this->_html = '';
-        if (((bool)Tools::isSubmit('submitAtkzordersficationModule')) == true) {    
+        if (((bool)Tools::isSubmit('submitAtkzordersficationModule')) == true) {
             $this->_html .= $this->postProcess();
         }
 
@@ -113,9 +111,6 @@ class AtkzOrdersFication extends Module
         return $helper->generateForm(array($this->getConfigForm()));
     }
 
-    /**
-     * Create the structure of your form.
-     */
     protected function getConfigForm()
     {
         $statusOrders = OrderState::getOrderStates($this->context->language->id, true);
@@ -130,7 +125,6 @@ class AtkzOrdersFication extends Module
                     array(
                         'col' => 3,
                         'type' => 'text',
-                        //'prefix' => '<i class="icon icon-envelope"></i>',
                         'desc' => $this->l('Enter a valid email address for test notification'),
                         'name' => 'ATKZORDERSFICATION_EMAILS',
                         'label' => $this->l('Email'),
@@ -138,7 +132,6 @@ class AtkzOrdersFication extends Module
                     array(
                         'col' => 6,
                         'type' => 'select',
-                        'prefix' => '<i class="icon icon-sort"></i>',
                         'desc' => $this->l('Select order state to send notification'),
                         'name' => 'ATKZORDERSFICATION_ORDER_STATE',
                         'label' => $this->l('Order state'),
@@ -152,7 +145,6 @@ class AtkzOrdersFication extends Module
                     array(
                         'col' => 3,
                         'type' => 'text',
-                        //'prefix' => '<i class="icon icon-envelope"></i>',
                         'desc' => $this->l('Enter a Product ID for send notification'),
                         'name' => 'ATKZORDERSFICATION_PRODUCTS',
                         'label' => $this->l('Product ID'),
@@ -167,7 +159,6 @@ class AtkzOrdersFication extends Module
 
     protected function getConfigFieldsValues()
     {
-        
         $id_shop = Shop::getContextShopID();
         $id_shop_group = Shop::getContextShopGroupID();
 
@@ -189,7 +180,6 @@ class AtkzOrdersFication extends Module
 
     public function hookDisplayBackOfficeHeader()
     {
-        /**/
     }
 
     public function hookActionOrderStatusUpdate(array $params)
@@ -202,26 +192,25 @@ class AtkzOrdersFication extends Module
         $new_state = $params['newOrderStatus']->id;
         $notif_state = (int) Configuration::get('ATKZORDERSFICATION_ORDER_STATE');
 
-        if ($new_state === $notif_state) {
+        if ($new_state === $notif_state){
 
              /*  Voir si test multi produits */
             $notif_product = (int) Configuration::get('ATKZORDERSFICATION_PRODUCTS');
             $checkProduct = $order->orderContainProduct($notif_product);
 
-            if ($checkProduct) {
+            if ($checkProduct){
                 
                 /*  Voir si test multi emails */
                 $notif_email = Configuration::get('ATKZORDERSFICATION_EMAILS');
 
-                if ($notif_email) {
+                if ($notif_email){
                     $mail_customer = $notif_email;
                 }else{
                     $customer = new Customer((int) $order->id_customer);
                     $mail_customer = $customer->email;
                 }
 
-                if (!empty($mail_customer) && Validate::isEmail($mail_customer)) {
-                    // Send mail to customer
+                if (!empty($mail_customer) && Validate::isEmail($mail_customer)){
 
                     $id_shop = (isset($order->id_shop)) ? $order->id_shop : (int) Context::getContext()->shop->id;
                     $id_lang = (isset($order->id_lang)) ? $order->id_lang : (int) Context::getContext()->language->id;
