@@ -180,7 +180,6 @@ class AtkzOrdersFication extends Module
 
     public function hookDisplayBackOfficeHeader()
     {
-        /**/
     }
 
     public function hookActionOrderStatusUpdate(array $params)
@@ -199,7 +198,7 @@ class AtkzOrdersFication extends Module
             $checkProduct = $order->orderContainProduct($notif_product);
 
             if ($checkProduct) {
-                /*  Voir si test multi emails */
+                /* Voir si test multi emails */
                 $notif_email = Configuration::get('ATKZORDERSFICATION_EMAILS');
 
                 if ($notif_email) {
@@ -210,14 +209,14 @@ class AtkzOrdersFication extends Module
                 }
 
                 if (!empty($mail_customer) && Validate::isEmail($mail_customer)) {
-                    // Send mail to customer
+                    /* Send mail to customer */
 
                     $id_shop = (isset($order->id_shop)) ? $order->id_shop : (int) Context::getContext()->shop->id;
                     $id_lang = (isset($order->id_lang)) ? $order->id_lang : (int) Context::getContext()->language->id;
                     $iso = Language::getIsoById($id_lang);
 
                     $product = new Product((int) $notif_product, false, $id_lang, $id_shop);
-                    //$id_product_attribute = $params['product']['id_product_attribute'];
+                    /* $id_product_attribute = $params['product']['id_product_attribute']; */
                     $product_name = Product::getProductName($product->id, null, $id_lang);
                     $product_link = Context::getContext()->link->getProductLink($product, $product->link_rewrite, null, null, $id_lang, $id_shop, null);
                     $template_vars = [
@@ -256,8 +255,6 @@ class AtkzOrdersFication extends Module
                     }
                 }
             }
-
-            //exit;
         }
     }
 }
