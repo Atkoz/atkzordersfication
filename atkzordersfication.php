@@ -180,6 +180,7 @@ class AtkzOrdersFication extends Module
 
     public function hookDisplayBackOfficeHeader()
     {
+        /**/
     }
 
     public function hookActionOrderStatusUpdate(array $params)
@@ -192,25 +193,24 @@ class AtkzOrdersFication extends Module
         $new_state = $params['newOrderStatus']->id;
         $notif_state = (int) Configuration::get('ATKZORDERSFICATION_ORDER_STATE');
 
-        if ($new_state === $notif_state)
-        {
+        if ($new_state === $notif_state) {
             /* Voir si test multi produits */
             $notif_product = (int) Configuration::get('ATKZORDERSFICATION_PRODUCTS');
             $checkProduct = $order->orderContainProduct($notif_product);
 
-            if ($checkProduct)
-            {
-                /* Voir si test multi emails */
+            if ($checkProduct) {
+                /*  Voir si test multi emails */
                 $notif_email = Configuration::get('ATKZORDERSFICATION_EMAILS');
 
-                if ($notif_email){
+                if ($notif_email) {
                     $mail_customer = $notif_email;
                 }else{
                     $customer = new Customer((int) $order->id_customer);
                     $mail_customer = $customer->email;
                 }
 
-                if (!empty($mail_customer) && Validate::isEmail($mail_customer)){
+                if (!empty($mail_customer) && Validate::isEmail($mail_customer)) {
+                    // Send mail to customer
 
                     $id_shop = (isset($order->id_shop)) ? $order->id_shop : (int) Context::getContext()->shop->id;
                     $id_lang = (isset($order->id_lang)) ? $order->id_lang : (int) Context::getContext()->language->id;
@@ -224,7 +224,7 @@ class AtkzOrdersFication extends Module
                         '{product}' => $product_name,
                         '{product_link}' => $product_link,
                     ];
-    
+
                     if (file_exists(dirname(__FILE__) . '/mails/' . $iso . '/ordersfication.txt') &&
                         file_exists(dirname(__FILE__) . '/mails/' . $iso . '/ordersfication.html')) {
                         try {
