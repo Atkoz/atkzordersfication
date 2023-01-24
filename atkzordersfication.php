@@ -194,63 +194,78 @@ class AtkzOrdersFication extends Module
 
         if ($new_state === $notif_state) {
             /* Voir si test multi produits */
-            $notif_product = (int) Configuration::get('ATKZORDERSFICATION_PRODUCTS');
-            $checkProduct = $order->orderContainProduct($notif_product);
+            $notif_product = Configuration::get('ATKZORDERSFICATION_PRODUCTS');
+            $split_product = explode(';', $notif_product);
+            //print_r($split_product);exit;
 
-            if ($checkProduct) {
-                /* Voir si test multi emails */
-                $notif_email = Configuration::get('ATKZORDERSFICATION_EMAILS');
+            if (is_array($split_product) && count($split_product)) {
+                foreach ($split_product as $product) {
 
-                if ($notif_email) {
-                    $mail_customer = $notif_email;
-                }else{
-                    $customer = new Customer((int) $order->id_customer);
-                    $mail_customer = $customer->email;
-                }
+                    $checkProduct = $order->orderContainProduct($product);
+                    //PrestaShopLogger::addLog('Module atkzordersfication product :'.$product.' checkProduct:'.$checkProduct, 1, null, 'Order', (int) $product, true);
 
-                if (!empty($mail_customer) && Validate::isEmail($mail_customer)) {
-                    /* Send mail to customer */
-
-                    $id_shop = (isset($order->id_shop)) ? $order->id_shop : (int) Context::getContext()->shop->id;
-                    $id_lang = (isset($order->id_lang)) ? $order->id_lang : (int) Context::getContext()->language->id;
-                    $iso = Language::getIsoById($id_lang);
-
-                    $product = new Product((int) $notif_product, false, $id_lang, $id_shop);
-                    /* $id_product_attribute = $params['product']['id_product_attribute']; */
-                    $product_name = Product::getProductName($product->id, null, $id_lang);
-                    $product_link = Context::getContext()->link->getProductLink($product, $product->link_rewrite, null, null, $id_lang, $id_shop, null);
-                    $template_vars = [
-                        '{product}' => $product_name,
-                        '{product_link}' => $product_link,
-                    ];
-
-                    if (file_exists(dirname(__FILE__) . '/mails/' . $iso . '/ordersfication.txt') &&
-                        file_exists(dirname(__FILE__) . '/mails/' . $iso . '/ordersfication.html')) {
-                        try {
-                            Mail::Send(
-                                $id_lang,
-                                'ordersfication',
-                                Mail::l('Notificaion Product', $id_lang),
-                                $template_vars,
-                                $mail_customer,
-                                null,
-                                Configuration::get('PS_SHOP_EMAIL', null, null, $id_shop),
-                                Configuration::get('PS_SHOP_NAME', null, null, $id_shop),
-                                null,
-                                null,
-                                dirname(__FILE__) . '/mails/',
-                                false,
-                                $id_shop
-                            );
-                        } catch (Exception $e) {
-                            PrestaShopLogger::addLog(
-                                sprintf(
-                                    'Module atkzordersfication error: Could not send email to address [%s] because %s',
-                                    $mail_customer,
-                                    $e->getMessage()
-                                ),
-                                3
-                            );
+                    if ($checkProduct) {
+                        /* Voir si test multi emails */
+                        $notif_email = Configuration::get('ATKZORDERSFICATION_EMAILS');
+        
+                        $split_email = explode(';', $notif_email);
+                        if (is_array($split_email) && count($split_email)) {
+                            foreach ($split_email as $email) {
+                                //$ips = array_merge($ips, explode("\n", $ip));
+                                if ($email) {
+                                    $mail_customer = $email;
+                                }else{
+                                    $customer = new Customer((int) $order->id_customer);
+                                    $mail_customer = $customer->email;
+                                }
+        
+                                if (!empty($mail_customer) && Validate::isEmail($mail_customer)) {
+                                    /* Send mail to customer */
+        
+                                    $id_shop = (isset($order->id_shop)) ? $order->id_shop : (int) Context::getContext()->shop->id;
+                                    $id_lang = (isset($order->id_lang)) ? $order->id_lang : (int) Context::getContext()->language->id;
+                                    $iso = Language::getIsoById($id_lang);
+        
+                                    $product_info = new Product((int) $product, false, $id_lang, $id_shop);
+                                    /* $id_product_attribute = $params['product']['id_product_attribute']; */
+                                    $product_name = Product::getProductName($product_info->id, null, $id_lang);
+                                    $product_link = Context::getContext()->link->getProductLink($product_info, $product_info->link_rewrite, null, null, $id_lang, $id_shop, null);
+                                    $template_vars = [
+                                        '{product}' => $product_name,
+                                        '{product_link}' => $product_link,
+                                    ];
+        
+                                    if (file_exists(dirname(__FILE__) . '/mails/' . $iso . '/ordersfication.txt') &&
+                                        file_exists(dirname(__FILE__) . '/mails/' . $iso . '/ordersfication.html')) {
+                                        try {
+                                            Mail::Send(
+                                                $id_lang,
+                                                'ordersfication',
+                                                Mail::l('Notification Orders Product', $id_lang),
+                                                $template_vars,
+                                                $mail_customer,
+                                                null,
+                                                Configuration::get('PS_SHOP_EMAIL', null, null, $id_shop),
+                                                Configuration::get('PS_SHOP_NAME', null, null, $id_shop),
+                                                null,
+                                                null,
+                                                dirname(__FILE__) . '/mails/',
+                                                false,
+                                                $id_shop
+                                            );
+                                        } catch (Exception $e) {
+                                            PrestaShopLogger::addLog(
+                                                sprintf(
+                                                    'Module atkzordersfication error: Could not send email to address [%s] because %s',
+                                                    $mail_customer,
+                                                    $e->getMessage()
+                                                ),
+                                                3
+                                            );
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
